@@ -212,7 +212,7 @@ Ver [SETUP.md](docs/SETUP.md) para guía detallada.
 
 ---
 
-## 📄 Licencia
+##  Licencia
 
 MIT License - ver [LICENSE](LICENSE) para detalles.
 
@@ -222,13 +222,15 @@ MIT License - ver [LICENSE](LICENSE) para detalles.
 
 Proyecto desarrollado como parte de mi formación en ciberseguridad.
 
-
+### Contacto:
+- GitHub: [@jairos07](https://github.com/jairos07)
+- Linkedin: https://www.linkedin.com/in/jairo-mosteiro-4a2aa138b/
 
 ---
 
 ##  Agradecimientos
 
-- **Claude AI (Anthropic)** por asistencia en desarrollo de código
+- **Claude AI** por asistencia en desarrollo de código
 - **Comunidad de seguridad open-source** por inspiración
 - **Proyectos Kippo y Cowrie** como referencia de honeypots
 
