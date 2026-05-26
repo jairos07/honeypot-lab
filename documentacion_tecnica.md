@@ -2,6 +2,8 @@
 
 ---
 
+!Atencion: todo el condigo en python de este proyecto esta hecho con IA para facilitar la velocidad de este trabajo, usese solo en entornos controlados o con fines eticos y educativos, gracias¡
+
 ## 1. Creación de la máquina virtual en Proxmox
 
 ### 1.1 Configuración general
@@ -343,4 +345,4 @@ El SSH Honeypot recibe conexiones desde `127.0.0.1` generadas por el simulador. 
 
 ---
 
-*Documentación generada a partir del análisis de las capturas del proyecto honeypot-lab.*
+**Proyecto hecho por Jairo Mosteiro**
