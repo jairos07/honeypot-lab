@@ -61,20 +61,12 @@ Este proyecto nace de la necesidad de entender cómo funcionan los ataques infor
 - **Análisis de malware**: Captura binarios y scripts maliciosos
 
 ### Para Portafolio Profesional
-- Demuestra conocimiento en Python, bases de datos, redes y seguridad
 - Proyecto completo con arquitectura limpia y documentación
 - Aplicación práctica de conceptos de ciberseguridad
 
 ---
 
 ## ¿Qué aprendí desarrollando este proyecto?
-
-### Conocimientos Técnicos
-- **Programación de sockets**: Implementación de servidores TCP personalizados
-- **Protocolos de red**: SSH (con Paramiko), HTTP a bajo nivel
-- **Bases de datos**: PostgreSQL, diseño de esquemas, queries optimizadas
-- **Logging avanzado**: Sistema centralizado con Loguru
-- **Arquitectura modular**: Separación de responsabilidades, configuración centralizada
 
 ### Seguridad y Análisis
 - **Detección de ataques**: Patrones de SQL injection, XSS, path traversal
