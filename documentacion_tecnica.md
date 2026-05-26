@@ -1,229 +1,346 @@
-# Instalación Visual - Honeypot Lab
-
-Documentación del proceso de instalación con capturas visuales.
+# Documentación Técnica — Honeypot Lab
 
 ---
 
-## Paso 1: Asignación de Memoria
+## 1. Creación de la máquina virtual en Proxmox
 
-Se configura la máquina virtual con **4 GB de RAM** para que tenga suficientes recursos para ejecutar PostgreSQL, los honeypots y el sistema operativo simultáneamente.
-
-<img src="img/specs/cap5.png">
-
-
----
-
-## Paso 2: Configuración de CPU
-
-Se asigna **3 núcleos de CPU** en el tipo x86-64-v2-AES, proporcionando poder de procesamiento adecuado para manejar múltiples conexiones simultáneas de atacantes.
-
-<img src="img/specs/cap4.png">
-
----
-
-## Paso 3: Configuración de Disco
-
-Se crea un disco virtual de **40 GB** con almacenamiento local en Proxmox. Este espacio es suficiente para el SO, PostgreSQL y los logs del honeypot.
-
-<img src="img/specs/cap3.png">
-
-
----
-
-## Paso 4: Selección del Sistema Operativo
-
-Se elige **Ubuntu Server 22.04 LTS** como sistema operativo base. Esta distribución es estable, tiene soporte a largo plazo y amplio soporte comunitario para herramientas de seguridad.
-
-<img src="img/specs/cap2.png">
-
----
-
-## Paso 5: Información General de la VM
-
-Se define el nombre de la máquina como **"honeypot"** con ID 101 en el nodo Proxmox. Esto permite identificarla fácilmente en la infraestructura.
+### 1.1 Configuración general
 
 <img src="img/specs/cap1.png">
 
----
-
-## Paso 6: Instalación de OpenSSH
-
-Durante la instalación de Ubuntu, se selecciona instalar **OpenSSH Server** para permitir acceso remoto por SSH a la máquina. Esto es útil para gestionar el honeypot desde otras máquinas.
-
-<img src="img/config/cap2.png">
+En la interfaz de Proxmox se crea una nueva máquina virtual. Se asigna el nodo **pve2**, el identificador **VM ID 101** y el nombre **honeypot**. Este nombre identifica la máquina dentro del clúster.
 
 ---
 
-## Paso 7: Configuración del Usuario
+### 1.2 Sistema operativo
 
-Se crea el usuario **"administrador"** con contraseña. Este usuario tendrá permisos sudo para instalar dependencias y configurar los servicios del honeypot.
+<img src="img/specs/cap2.png">
+
+Se selecciona la imagen ISO almacenada en local para instalar el sistema operativo. El tipo de SO configurado es **Linux**, versión de kernel **6.x - 2.6**, usando una imagen live-server para arquitectura amd64.
+
+---
+
+### 1.3 Disco duro
+
+<img src="img/specs/cap3.png">
+
+Se configura un disco virtual de **40 GiB** usando el bus SCSI con controlador **VirtIO SCSI single**, almacenado en **local-lvm**. Se activa la opción **IO thread** para mejorar el rendimiento de entrada/salida.
+
+---
+
+### 1.4 CPU
+
+<img src="img/specs/cap4.png">
+
+Se asigna **1 zócalo con 3 núcleos** de tipo **x86-64-v2-AES**, resultando en un total de 3 núcleos disponibles para la máquina virtual.
+
+---
+
+### 1.5 Memoria RAM
+
+<img src="img/specs/cap5.png">
+
+Se configura **4086 MiB** (aproximadamente 4 GB) de memoria RAM para la máquina virtual.
+
+---
+
+## 2. Instalación de Ubuntu Server
+
+### 2.1 Configuración del perfil de usuario
 
 <img src="img/config/cap1.png">
 
----
-
-## Paso 8: Instalación de PostgreSQL
-
-Se instala **PostgreSQL** ejecutando el comando apt. PostgreSQL es necesario para almacenar todos los ataques capturados por los honeypots en una base de datos relacional.
-
-<img src="img/config/cap11.png">
+Durante el proceso de instalación de Ubuntu Server, se configura el perfil del sistema. Se establece el nombre real **administrador**, el nombre del servidor **honeypot**, el nombre de usuario **administrador** y una contraseña. Este usuario tendrá capacidad para ejecutar comandos con `sudo`.
 
 ---
 
-## Paso 9: Verificar PostgreSQL Activo
+### 2.2 Configuración de SSH durante la instalación
 
-Se verifica que el servicio PostgreSQL esté **activo y ejecutándose**. Un estado "Active: active (running)" confirma que la base de datos está lista para recibir conexiones.
+<img src="img/config/cap2.png">
 
-<img src="img/config/cap12.png">
-
----
-
-## Paso 10: Instalar Herramientas Adicionales
-
-Se instala **postgresql-contrib** que proporciona herramientas y extensiones adicionales para PostgreSQL que pueden ser útiles para administración.
-
+En el paso de configuración SSH del instalador se selecciona **instalar el servidor OpenSSH** y se habilita la **autenticación por contraseña**. No se importa ninguna clave SSH adicional. Esto permite acceso remoto a la máquina una vez finalizada la instalación.
 
 ---
 
+## 3. Configuración del sistema
 
-## Paso 11: Crear Base de Datos
-
-Se crea la base de datos **"honeypot_db"** en PostgreSQL. Esta BD almacenará todos los registros de ataques capturados por los honeypots.
-
-<img src="img/config/cap13.png">
-
-
----
-
-## Paso 12: Crear Usuario de Base de Datos
-
-Se crea el usuario **"honeypot_user"** en PostgreSQL con contraseña. Este usuario será utilizado por los honeypots para conectarse a la base de datos de forma segura.
-
-<img src="img/config/cap14.png">
-
----
-
-
-## Paso 13: Crear Estructura del Proyecto
-
-Se crean los directorios y archivos iniciales del proyecto. Se organizan los módulos en carpetas separadas (honeypot, dashboard, tests) y se copian los archivos de configuración necesarios.
-
-<img src="img/config/cap8.png">
-
----
-
-## Paso 14: Instalar Herramientas del Sistema
-
-Se instalan herramientas de utilidad del sistema que pueden ser necesarias para que ciertos paquetes Python compilen correctamente.
-
-<img src="img/config/cap6.png">
-
----
-
-## Paso 15: Verificar Dependencias Python
-
-Se lista todos los paquetes Python instalados. Se pueden ver librerías críticas como Flask, Paramiko, psycopg2, Loguru y Requests que son necesarias para el proyecto.
-
-<img src="img/config/cap4.png">
-
----
-
-## Paso 16: Actualizar pip
-
-Se actualiza **pip** (gestor de paquetes Python) a la versión más reciente. Esto asegura que se instalen correctamente todas las dependencias del proyecto.
-
-<img src="img/config/cap5.png">
-
----
-
-## Paso 17: Instalar Python 3.12 Dev
-
-Se instalan los **headers de desarrollo de Python 3.12**. Esto es necesario para compilar módulos nativos de algunos paquetes como psycopg2.
-
-<img src="img/config/cap7.png">
-
----
-
-## Paso 18: Instalar Utilidades Básicas
-
-Se instalan herramientas del sistema como **git, curl, nano, vim, htop** y otras. Estas son fundamentales para desarrollo, debugging y monitoreo del servidor.
+### 3.1 Instalación de herramientas del sistema
 
 <img src="img/config/cap3.png">
 
----
+Desde el terminal del servidor, con el usuario `administrador@honeypot`, se ejecuta `sudo apt install -y` para instalar las siguientes utilidades del sistema: **git, curl, wget, nano, vim, htop, net-tools, build-essential** y **software-properties-common**. Estas herramientas son necesarias para gestionar el servidor, compilar dependencias y depurar el entorno.
 
 ---
 
-## Paso 19: SSH Honeypot Funcionando
+### 3.2 Instalación de Python 3.12 dev y venv
 
-El **SSH Honeypot se inicia correctamente** en puerto 2222 y comienza a aceptar conexiones. Se ve que la BD está lista y se registran múltiples conexiones de atacantes. Cada intento de login se captura y se clasifica por tipo de ataque (LOGIN_ATTEMPT, BRUTE_FORCE).
+<img src="img/config/cap4.png">
+
+Se instala **python3.12-venv** y **python3.12-dev** mediante `apt`. El gestor de paquetes resuelve las dependencias necesarias: `libexpat1-dev`, `libpython3.12-dev`, `python3-pip-whl`, `python3-setuptools-whl` y `zlib1g-dev`. En total se descargan 9.6 MB y se utilizan 35.2 MB de espacio en disco.
+
+---
+
+### 3.3 Creación del entorno virtual e instalación de dependencias Python
+
+<img src="img/config/cap5.png">
+
+Se crea el entorno virtual en `~/honeypot-env` con `python3 -m venv` y se activa con `source ~/honeypot-env/bin/activate`. A continuación se actualiza **pip** de la versión 24.0 a la **26.1.1** y se instalan las librerías principales del proyecto: **flask, paramiko, psycopg2-binary, sqlalchemy, python-dotenv, loguru** y **requests**.
+
+---
+
+### 3.4 Verificación de dependencias
+
+<img src="img/config/cap6.png">
+
+Se ejecuta `python -c "import flask, paramiko, psycopg2, sqlalchemy, loguru, requests"` y el resultado es **"todo funciona perfectamente"**. A continuación se lista con `pip list` todos los paquetes instalados en el entorno: flask 3.1.3, paramiko 5.0.0, psycopg2-binary 2.9.12, SQLAlchemy 2.0.49, loguru 0.7.3, requests 2.34.2, entre otros.
+
+---
+
+### 3.5 Instalación de dependencias adicionales
+
+<img src="img/config/cap7.png">
+
+Se instalan paquetes adicionales orientados a análisis de red y testing: **geoip2, maxminddb, scapy, dnspython, pycryptodome, pytest** y **pytest-cov**. Estas librerías amplían las capacidades del honeypot para análisis de tráfico y ejecución de tests automatizados.
+
+---
+
+## 4. Estructura del proyecto
+
+### 4.1 Creación de ficheros de configuración
+
+<img src="img/config/cap8.png">
+
+Con el editor `nano` se crean los ficheros principales del proyecto dentro del directorio `~/honeypot-env`: **config.py**, **logger.py**, **.env**, **requirements.txt** y **.gitignore**. Además se crea el fichero `honeypot/__init__.py` para convertir el directorio en un módulo Python.
+
+---
+
+### 4.2 Organización de módulos y traslado de ficheros
+
+<img src="img/config/cap9.png">
+
+Se crean los ficheros `__init__.py` en los directorios **honeypot/**, **dashboard/** y **tests/**, estableciendo la estructura de módulos del proyecto. Posteriormente se mueven todos los ficheros de configuración desde `~/honeypot-env/` al directorio definitivo `~/honeypot-lab/` usando el comando `mv`.
+
+---
+
+## 5. Base de datos PostgreSQL
+
+### 5.1 Instalación de PostgreSQL
+
+<img src="img/config/cap11.png">
+
+Se instala **postgresql** y **postgresql-contrib** con `sudo apt install`. El gestor de paquetes descarga 43.6 MB e instala 13 paquetes nuevos incluyendo las librerías cliente, el servidor principal y las extensiones adicionales.
+
+---
+
+### 5.2 Arranque y habilitación del servicio
+
+<img src="img/config/cap12.png">
+
+Se inicia el servicio con `sudo systemctl start postgresql` y se habilita para que arranque automáticamente con `sudo systemctl enable postgresql`. Al consultar el estado con `systemctl status postgresql`, se confirma que el servicio está en estado **active (exited)** con preset habilitado, arrancado el 2026-05-24 a las 20:18:26 UTC.
+
+---
+
+### 5.3 Creación de la base de datos
+
+<img src="img/config/cap13.png">
+
+Accediendo al cliente psql con `sudo -u postgres psql`, se ejecuta el comando `CREATE DATABASE honeypot_db;`. PostgreSQL confirma la operación con el mensaje **CREATE DATABASE**. La versión instalada es PostgreSQL 16.14 (Ubuntu 16.14-0ubuntu0.24.04.1).
+
+---
+
+### 5.4 Creación del usuario y asignación de privilegios
+
+<img src="img/config/cap14.png">
+
+Se crea el usuario de base de datos con `CREATE USER honeypot_user WITH PASSWORD 'ejemplo';` — PostgreSQL responde **CREATE ROLE**. Se ajusta la codificación del cliente con `ALTER ROLE honeypot_user SET client_encoding TO 'utf8'`. Se produce un error tipográfico al escribir `PRIVILEGIES` en lugar de `PRIVILEGES`, que se corrige en la siguiente sentencia: `GRANT ALL PRIVILEGES ON DATABASE honeypot_db TO honeypot_user;` — el servidor confirma con **GRANT**.
+
+---
+
+### 5.5 Módulo de conexión a base de datos — database.py
+
+<img src="img/config/cap10.png">
+
+Se muestra en el editor `nano` el fichero **database.py**, que contiene la clase `DatabaseConnection` responsable de gestionar la conexión a PostgreSQL mediante **psycopg2**. La clase lee la configuración del host, puerto, nombre de BD, usuario y contraseña desde el módulo `config`. El método `connect()` establece la conexión con un timeout de 5 segundos, registra el evento con `log_db_event` y lanza una excepción si la conexión falla.
+
+---
+
+## 6. SSH Honeypot
+
+### 6.1 Código del módulo ssh_trap.py
+
+<img src="img/config/cap15.png">
+<img src="img/config/cap16.png">
+
+Se muestra el código del fichero **ssh_trap.py** abierto en nano. El módulo implementa un servidor SSH falso usando la librería **paramiko**. Al inicio genera una clave RSA para el servidor simulado. La clase `SSHHoneypot` hereda de `paramiko.ServerInterface` y actúa como si fuera un servidor SSH real, pero registra cada conexión entrante: almacena la IP del cliente, el puerto, el número de intentos de autenticación y las credenciales probadas. Cada conexión se registra con `log_connection` al instanciarse.
+
+---
+
+### 6.2 Arranque del SSH Honeypot
+
+<img src="img/config/cap17.png">
+
+Con el entorno virtual activado, se ejecuta `python3 ssh_trap.py`. La salida de logs muestra la secuencia de inicio:
+
+- **HONEYPOT-LAB — SSH HONEYPOT v0.1 (CON BD)**
+- Host: `0.0.0.0`, Puerto: `2222`, Banner: `SSH-2.0-OpenSSH_7.4`, Máx. intentos de autenticación: `3`
+- Conexión exitosa a la BD: `localhost:5432/honeypot_db`
+- Tabla `attacks` inicializada correctamente
+- **SSH Honeypot iniciado en `0.0.0.0:2222`**
+
+El honeypot queda en escucha en el puerto 2222 de todas las interfaces de red.
+
+---
+
+### 6.3 Intento de conexión SSH desde el atacante
+
+<img src="img/config/cap18.png">
+
+Desde una máquina externa (`toad@toad`) se ejecuta `ssh administrador@100.103.71.111 -p 2222`. El cliente SSH muestra la huella RSA del servidor honeypot (`SHA256:c2DglZZhMmg7RoctodSsStpug3Tu8jNW3qVj+mrFYbE`) y pregunta si se desea continuar — se acepta. Se realizan **3 intentos de contraseña**, todos respondidos con `Permission denied`. Finalmente el cliente recibe `Permission denied (password,publickey)` y la conexión se cierra. El atacante no obtiene acceso al sistema real.
+
+---
+
+### 6.4 Captura y clasificación del ataque SSH
 
 <img src="img/config/cap19.png">
 
----
+En el terminal del honeypot se registra en tiempo real el ataque procedente de `100.111.145.79`:
 
-## Paso 20: HTTP Honeypot Capturando Ataques
-
-El **HTTP Honeypot se inicia** en puerto 8080 y comienza a detectar ataques. Se capturan diversos tipos de ataques: PATH_TRAVERSAL, SQL_INJECTION, XSS. Cada ataque se inserta en la BD con un ID único y tipo de amenaza.
-
-<img src="img/config/cap19.png">
-
----
-
-## Paso 21: Menú del Simulador de Ataques
-
-El **simulador de ataques** presenta un menú interactivo con 6 opciones diferentes. Permite generar ataques SSH, HTTP, mixtos o ejecutar tests de stress sin exponerse a ataques reales.
-
-<img src="img/config/cap26.png">
+- **Cliente #1 conectado** — se recibe la conexión en el puerto 2222.
+- **ID 1** — primer intento: `LOGIN_ATTEMPT`, usuario `administrador` — insertado en BD.
+- **ID 2** — segundo intento: clasificado como `BRUTE_FORCE` — guardado en BD.
+- **ID 3** — tercer intento: `BRUTE_FORCE` — guardado en BD.
+- Nivel **CRITICAL**: `BRUTE FORCE CRÍTICO DETECTADO | IP: 100.111.145.79 | Intentos: 3` — se eleva la alerta al alcanzar el umbral máximo de intentos.
 
 ---
 
-## Paso 22: Ejecutar Test Rápido
+### 6.5 Estadísticas de ataques SSH
 
-Se ejecuta la **opción 4 (quick test)** que genera 5 ataques SSH y 10 ataques HTTP automáticamente. Esto llena la base de datos con datos de prueba para validar que los honeypots capturan correctamente.
+<img src="img/config/cap20.png">
 
-<img src="img/config/cap27.png">
+El módulo de estadísticas muestra el resumen de los ataques registrados hasta ese momento en la base de datos:
 
----
-
-## Paso 23: Código del Simulador
-
-Se muestra el código del **simulador de ataques** que contiene configuración, diccionarios de usuarios/contraseñas para SSH y payloads de ataques web (SQL injection, XSS, path traversal, scanners).
-
-<img src="img/config/cap25.png">
+- **Total ataques: 3**
+- Por servicio — SSH: 3 ataques
+- Por tipo — BRUTE\_FORCE: 2 ataques, LOGIN\_ATTEMPT: 1 ataque
 
 ---
 
-## Paso 24: HTTP Honeypot en Puerto 8080
+## 7. HTTP Honeypot
 
-Se confirma que el **HTTP Honeypot está ejecutándose** en puerto 8080 con acceso a BD. Está listo para capturar ataques web.
-
-<img src="img/config/cap22.png">
-
----
-
-## Paso 25: Ejecutar Ataque XSS con curl
-
-Desde terminal se ejecuta un **ataque XSS** usando curl contra el honeypot HTTP. El honeypot responde con 200 OK, engañando al atacante de que el servidor es real.
-
-<img src="img/config/cap23.png">
-
----
-
-## Paso 26: HTTP Honeypot Detecta Ataque
-
-El honeypot **detecta y registra el ataque XSS** en los logs y lo inserta en la BD con ID único. Se identifica como ataque de tipo SQL_INJECTION (puede haber falsa clasificación en este caso).
-
-<img src="img/config/cap24.png">
-
----
-
-## Paso 27: Código HTTP Honeypot
-
-Se muestra el código del **HTTP Honeypot** que implementa un servidor HTTP que captura requests, detecta patrones maliciosos y almacena los ataques en PostgreSQL usando la clase HTTPHoneypot.
+### 7.1 Código del módulo http_trap.py
 
 <img src="img/config/cap21.png">
 
+Se muestra el fichero **http_trap.py** en el editor nano. El módulo implementa la clase `HTTPHoneypot`, que levanta un servidor HTTP usando sockets de bajo nivel (`socket.AF_INET`, `socket.SOCK_STREAM`). El servidor escucha en el host y puerto configurados (por defecto el `HONEYPOT_HTTP_PORT` del módulo `config`), admite hasta 100 conexiones en cola y registra cada petición entrante. Su descripción indica que detecta **SQL injection, XSS, path traversal** y otros ataques HTTP, guardándolos en PostgreSQL.
+
 ---
 
-**Instalación completada exitosamente**
+### 7.2 Arranque del HTTP Honeypot
+
+<img src="img/config/cap22.png">
+
+Con el entorno virtual activado se ejecuta `python3 http_trap.py`. La secuencia de inicio es:
+
+- **HONEYPOT-LAB — HTTP HONEYPOT v0.1**
+- Host: `0.0.0.0`, Puerto: `8000`
+- Conexión exitosa a la BD: `localhost:5432/honeypot_db`
+- Tabla `attacks` inicializada correctamente
+- **HTTP Honeypot iniciado en `0.0.0.0:8080`**
+
+El servidor queda a la escucha en el puerto 8080.
+
+---
+
+### 7.3 Ataque XSS manual con curl
+
+<img src="img/config/cap23.png">
+
+Desde la misma máquina se lanza manualmente un ataque XSS usando `curl`:
+
+```
+curl "http://localhost:8080/search?q=<script>alert(1)</script>"
+```
+
+El honeypot responde con `<html><body><h1>Welcome</h1></body></html>`, simulando ser un servidor web legítimo para no delatar que es una trampa. El atacante recibe una respuesta HTTP 200 aparentemente normal.
+
+---
+
+### 7.4 Detección y registro del ataque XSS
+
+<img src="img/config/cap24.png">
+
+El honeypot registra internamente la petición:
+
+- **HTTP Request** — IP: `127.0.0.1` | GET `/search?q=<script>alert(1)</script>`
+- Ataque insertado en BD con **ID: 4**, tipo clasificado como **SQL\_INJECTION**
+- WARNING: `ATAQUE DETECTADO | IP: 127.0.0.1 | Servicio: HTTP | Tipo: SQL_INJECTION`
+
+El payload XSS es detectado aunque el motor de clasificación lo etiqueta como `SQL_INJECTION`, lo que indica que el patrón de detección agrupa ambos tipos bajo la misma categoría en esta versión.
+
+---
+
+## 8. Simulador de ataques
+
+### 8.1 Código del simulador — simulate_atacks.py
+
+<img src="img/config/cap25.png">
+
+Se muestra el fichero **simulate\_atacks.py** en nano. El simulador apunta a `localhost` en los puertos `2222` (SSH) y `8080` (HTTP). Define diccionarios de prueba para SSH: lista de usuarios comunes (`admin`, `root`, `test`, `administrator`, `postgres`, `ubuntu`…) y contraseñas débiles (`admin`, `password`, `123456`, `qwerty`…). Para HTTP define payloads organizados por categoría: **SQL\_INJECTION** (inyecciones clásicas con `OR '1'='1'`, `UNION SELECT`, `DROP TABLE`), **XSS** (payloads `<script>`, `<img onerror>`, `<svg onload>`), **PATH\_TRAVERSAL** (`../../../etc/passwd`, `../etc/shadow`) y peticiones a rutas sensibles de **SCANNER**.
+
+---
+
+### 8.2 Menú del simulador de ataques
+
+<img src="img/config/cap26.png">
+
+Se ejecuta `python3 tests/simulate_atacks.py` desde el directorio `~/honeypot-lab`. El simulador presenta un menú interactivo con las siguientes opciones:
+
+1. Simular ataque SSH (fuerza bruta)
+2. Simular ataques HTTP (SQL, XSS, etc.)
+3. Simular ataques mixtos (SSH + HTTP)
+4. Ataque rápido (5 SSH + 10 HTTP)
+5. Estrés test (100 requests)
+0. Salir
+
+---
+
+### 8.3 Ejecución del ataque rápido (opción 4)
+
+<img src="img/config/cap27.png">
+
+Se selecciona la opción **4 — Ataque rápido**. El simulador lanza 5 intentos SSH y 10 peticiones HTTP. En esta ejecución ambos servicios responden con **`[Errno 111] Connection refused`** porque los honeypots no estaban en ejecución en ese momento. El simulador registra la simulación como completada mostrando: `SQL_INJECTION: 0 requests`, `XSS: 0 requests`, `PATH_TRAVERSAL: 0 requests`, `SCANNER: 0 requests`.
+
+---
+
+### 8.4 HTTP Honeypot procesando múltiples ataques simulados
+
+<img src="img/config/cap28.png">
+
+Con el HTTP Honeypot activo, el simulador genera una ráfaga de peticiones maliciosas desde `127.0.0.1`. El honeypot detecta y registra en BD los siguientes ataques en secuencia:
+
+| ID | Tipo | Ruta |
+|----|------|------|
+| 6  | PATH\_TRAVERSAL | `/read?path=../../etc/shadow` |
+| 7  | SQL\_INJECTION | `/page?name=<script>document.cookie</script>` |
+| 8  | SQL\_INJECTION | `/search?q=<svg onload=alert(1)>` |
+| 9  | PATH\_TRAVERSAL | `/read?path=../../etc/shadow` |
+| 10 | SQL\_INJECTION | `/search?q=<script>alert(1)</script>` |
+| 11 | SCANNER | `/admin` |
+| 12 | SCANNER | `/.env` |
+| 13 | PATH\_TRAVERSAL | `/view?page=../../../config.php` |
+| 14 | SUSPICIOUS\_REQUEST | `/product.php?id=1' AND 1=1--` |
+| 15 | SQL\_INJECTION | `/search?q=<svg onload=alert(1)>` |
+
+Cada ataque genera una línea WARNING en los logs del honeypot con la IP origen, el servicio y el tipo detectado.
+
+---
+
+### 8.5 SSH Honeypot recibiendo conexiones del simulador
+
+<img src="img/config/cap29.png">
+
+El SSH Honeypot recibe conexiones desde `127.0.0.1` generadas por el simulador. Los clientes #4 y #5 se conectan al puerto 2222 pero no completan el handshake SSH correctamente, produciendo la excepción `paramiko.ssh_exception.SSHException: Error reading SSH protocol banner`. Esta excepción indica que la conexión se establece a nivel TCP pero el cliente (el simulador) no envía el banner SSH estándar, lo que interrumpe el intercambio del protocolo. El honeypot registra cada conexión entrante antes de producirse el error.
+
+---
+
+*Documentación generada a partir del análisis de las capturas del proyecto honeypot-lab.*
